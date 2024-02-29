@@ -24,7 +24,8 @@ while running:
     snake.handle_keys(keys)
 
     snake.move()
-    snake.check_collision(food)
+    if snake.check_collision(food):
+        food = Food()
 
     win.fill((0, 0, 0))
     snake.draw(win)

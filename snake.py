@@ -42,6 +42,7 @@ class Snake:
     #This method is used to check if the snake has collided with the food.
     def check_collision(self, food):
         if self.x == food.x and self.y == food.y:
+            self.body.append((self.x, self.y))
             return True
         else:
             return False
