@@ -38,3 +38,10 @@ class Snake:
     def draw(self, win):
         for segment in self.body:
             pygame.draw.rect(win,(0,255,0),(segment[0], segment[1], self.size, self.size))
+
+    #This method is used to check if the snake has collided with the food.
+    def check_collision(self, food):
+        if self.x == food.x and self.y == food.y:
+            return True
+        else:
+            return False
