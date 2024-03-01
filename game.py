@@ -1,5 +1,5 @@
-import pygame
 from enum import Enum
+import pygame
 
 class Direction(Enum):
     UP = 1
@@ -69,3 +69,18 @@ class Snake:
 
     def eat(self):
         self.length += 1
+
+    def check_collision_tail(self):
+        head = self.body[-1]
+        is_tail_eaten = False
+
+        for i in range(len(self.body)-1):
+            if head[0] == self.body[i][0] and head[1] == self.body[i][1]:
+                is_tail_eaten = True
+        return is_tail_eaten
+
+    def check_collision_boundary(self):
+        head = self.body[-1]
+        if head[0] >= self.boundary[0] or head[0] < 0 or head[1] >= self.boundary[1] or head[1] < 0:
+            return True
+        return False

@@ -1,6 +1,5 @@
-import pygame
 import random
-
+import pygame
 class Food:
     size = None
     color = (255, 0, 0)
@@ -10,6 +9,7 @@ class Food:
     def __init__(self, size, boundary):
         self.size = size
         self.boundary = boundary
+        self.respawn()
 
     def draw(self, game, win):
         game.draw.rect(win, self.color, (self.x, self.y, self.size, self.size))

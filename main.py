@@ -1,8 +1,6 @@
 import pygame
-
 from food import Food
 from game import *
-
 
 pygame.init()
 
@@ -13,6 +11,7 @@ pygame.display.set_caption("Snake Game")
 block_size = 20
 snake = Snake(block_size, boundary)
 food = Food(block_size, boundary)
+font = pygame.font.SysFont('Times New Roman', 60, True)
 
 run = True
 while run:
@@ -34,10 +33,18 @@ while run:
     snake.move()
     snake.check_collision_food(food)
 
+    if snake.check_collision_boundary() == True or snake.check_collision_tail() == True:
+        text = font.render('Game Over', True, (255, 255, 255))
+        text_rect = text.get_rect(center=(boundary[0] / 2, boundary[1] / 2))
+        win.blit(text, text_rect)
+        pygame.display.flip()
+        pygame.time.delay(2000)
+        snake.respawn()
+        food.respawn()
+
     win.fill((0, 0, 0))
     snake.draw(pygame, win)
     food.draw(pygame, win)
     pygame.display.flip()
-
 
 pygame.quit()
