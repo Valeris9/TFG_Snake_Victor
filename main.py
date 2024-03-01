@@ -1,37 +1,43 @@
 import pygame
 
 from food import Food
-from snake import Snake
+from game import *
+
 
 pygame.init()
 
-width, height = 800, 600
-win = pygame.display.set_mode((width, height))
+boundary = (800, 600)
+win = pygame.display.set_mode(boundary)
 pygame.display.set_caption("Snake Game")
 
-snake = Snake()
-food = Food()
+block_size = 20
+snake = Snake(block_size, boundary)
+food = Food(block_size, boundary)
 
-clock = pygame.time.Clock()
-
-running = True
-while running:
+run = True
+while run:
+    pygame.time.delay(100)
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
-            running = False
+            run = False
 
     keys = pygame.key.get_pressed()
-    snake.handle_keys(keys)
+    if keys[pygame.K_LEFT]:
+        snake.steer(Direction.LEFT)
+    elif keys[pygame.K_RIGHT]:
+        snake.steer(Direction.RIGHT)
+    elif keys[pygame.K_UP]:
+        snake.steer(Direction.UP)
+    elif keys[pygame.K_DOWN]:
+        snake.steer(Direction.DOWN)
 
     snake.move()
-    if snake.check_collision(food):
-        food = Food()
+    snake.check_collision_food(food)
 
     win.fill((0, 0, 0))
-    snake.draw(win)
-    food.draw(win)
+    snake.draw(pygame, win)
+    food.draw(pygame, win)
+    pygame.display.flip()
 
-    pygame.display.update()
-    clock.tick(10)
 
 pygame.quit()
