@@ -12,6 +12,7 @@ block_size = 20
 snake = Snake(block_size, boundary)
 food = Food(block_size, boundary)
 font = pygame.font.SysFont('Times New Roman', 60, True)
+font_small = pygame.font.SysFont('Times New Roman', 20, True)
 
 run = True
 while run:
@@ -45,6 +46,9 @@ while run:
     win.fill((0, 0, 0))
     snake.draw(pygame, win)
     food.draw(pygame, win)
+
+    score_text = font_small.render(f'Score: {snake.score}', True, (255, 255, 255))
+    win.blit(score_text, (10, 10))
     pygame.display.flip()
 
 pygame.quit()

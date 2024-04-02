@@ -13,6 +13,8 @@ class Snake:
     block_size = None
     color = (0, 255, 0)
     boundary = None
+    score = 0
+    start_time = None
 
     #This is the constructor of the class.
     def __init__(self, block_size, boundary):
@@ -24,6 +26,9 @@ class Snake:
         self.length = 2
         self.direction = Direction.RIGHT
         self.body = [(20, 20), (20, 40), (20, 60)]
+
+    def update_score(self):
+        self.score += 1
 
     #This method is used to draw the snake on the screen.
     def steer(self, direction):
@@ -69,6 +74,7 @@ class Snake:
 
     def eat(self):
         self.length += 1
+        self.update_score()
 
     def check_collision_tail(self):
         head = self.body[-1]
@@ -84,3 +90,5 @@ class Snake:
         if head[0] >= self.boundary[0] or head[0] < 0 or head[1] >= self.boundary[1] or head[1] < 0:
             return True
         return False
+
+
