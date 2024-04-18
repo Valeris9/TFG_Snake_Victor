@@ -2,53 +2,61 @@ import pygame
 from food import Food
 from game import *
 
-pygame.init()
+class MainHuman:
+    def __init__(self):
+        pygame.init()
 
-boundary = (800, 600)
-win = pygame.display.set_mode(boundary)
-pygame.display.set_caption("Snake Game")
+        self.boundary = (800, 600)
+        self.win = pygame.display.set_mode(self.boundary)
+        pygame.display.set_caption("Snake Game")
 
-block_size = 20
-snake = Snake(block_size, boundary)
-food = Food(block_size, boundary)
-font = pygame.font.SysFont('Times New Roman', 60, True)
-font_small = pygame.font.SysFont('Times New Roman', 20, True)
+        self.block_size = 20
+        self.snake = Snake(self.block_size, self.boundary)
+        self.food = Food(self.block_size, self.boundary)
+        self.font = pygame.font.SysFont('Times New Roman', 60, True)
+        self.font_small = pygame.font.SysFont('Times New Roman', 20, True)
 
-run = True
-while run:
-    pygame.time.delay(100)
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            run = False
+    def run_game(self):
+        run = True
+        while run:
+            pygame.time.delay(100)
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    run = False
 
-    keys = pygame.key.get_pressed()
-    if keys[pygame.K_LEFT]:
-        snake.steer(Direction.LEFT)
-    elif keys[pygame.K_RIGHT]:
-        snake.steer(Direction.RIGHT)
-    elif keys[pygame.K_UP]:
-        snake.steer(Direction.UP)
-    elif keys[pygame.K_DOWN]:
-        snake.steer(Direction.DOWN)
+            keys = pygame.key.get_pressed()
+            if keys[pygame.K_LEFT]:
+                self.snake.steer(Direction.LEFT)
+            elif keys[pygame.K_RIGHT]:
+                self.snake.steer(Direction.RIGHT)
+            elif keys[pygame.K_UP]:
+                self.snake.steer(Direction.UP)
+            elif keys[pygame.K_DOWN]:
+                self.snake.steer(Direction.DOWN)
 
-    snake.move()
-    snake.check_collision_food(food)
+            self.snake.move()
+            self.snake.check_collision_food(self.food)
 
-    if snake.check_collision_boundary() == True or snake.check_collision_tail() == True:
-        text = font.render('Game Over', True, (255, 255, 255))
-        text_rect = text.get_rect(center=(boundary[0] / 2, boundary[1] / 2))
-        win.blit(text, text_rect)
-        pygame.display.flip()
-        pygame.time.delay(2000)
-        snake.respawn()
-        food.respawn()
+            if self.snake.check_collision_boundary() or self.snake.check_collision_tail():
+                text = self.font.render('Game Over', True, (255, 255, 255))
+                text_rect = text.get_rect(center=(self.boundary[0] / 2, self.boundary[1] / 2))
+                self.win.blit(text, text_rect)
+                pygame.display.flip()
+                pygame.time.delay(2000)
+                self.snake.respawn()
+                self.food.respawn()
 
-    win.fill((0, 0, 0))
-    snake.draw(pygame, win)
-    food.draw(pygame, win)
+            self.win.fill((0, 0, 0))
+            self.snake.draw(pygame, self.win)
+            self.food.draw(pygame, self.win)
 
-    score_text = font_small.render(f'Score: {snake.score}', True, (255, 255, 255))
-    win.blit(score_text, (10, 10))
-    pygame.display.flip()
+            score_text = self.font_small.render(f'Score: {self.snake.score}', True, (255, 255, 255))
+            self.win.blit(score_text, (10, 10))
+            pygame.display.flip()
 
-pygame.quit()
+        pygame.quit()
+
+if __name__ == "__main__":
+    game = MainHuman()
+    game.run_game()
+
