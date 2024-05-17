@@ -1,7 +1,7 @@
 import pygame
 import unittest
 from unittest.mock import Mock, call
-from game import Snake, Direction
+from snake import Snake, Direction
 
 
 class TestSnakeGame(unittest.TestCase):

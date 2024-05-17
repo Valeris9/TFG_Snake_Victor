@@ -1,6 +1,6 @@
 import pygame
 from food import Food
-from game import *
+from snake import *
 
 class MainHuman:
     def __init__(self):

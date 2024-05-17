@@ -43,21 +43,19 @@ class Snake:
 
     #This method is used to move the snake.
     def move(self):
+        global next_head
         curr_head = self.body[-1]
         if self.direction == Direction.DOWN:
             next_head = (curr_head[0], curr_head[1] + self.block_size)
-            self.body.append(next_head)
         elif self.direction == Direction.UP:
             next_head = (curr_head[0], curr_head[1] - self.block_size)
-            self.body.append(next_head)
         elif self.direction == Direction.RIGHT:
             next_head = (curr_head[0] + self.block_size, curr_head[1])
-            self.body.append(next_head)
         elif self.direction == Direction.LEFT:
             next_head = (curr_head[0] - self.block_size, curr_head[1])
-            self.body.append(next_head)
 
-        if self.length < len(self.body):
+        self.body.append(next_head)
+        if len(self.body) > self.length:
             self.body.pop(0)
 
     #This method is used to draw the snake on the screen.
@@ -68,9 +66,13 @@ class Snake:
     #This method is used to check if the snake has collided with the food.
     def check_collision_food(self, food):
         head = self.body[-1]
+        #print(f"Checking collision: Head at {head}, Food at ({food.x}, {food.y})")
         if head[0] == food.x and head[1] == food.y:
             self.eat()
             food.respawn()
+            print("Food eaten")
+            return True
+        return False
 
     def eat(self):
         self.length += 1
@@ -78,12 +80,7 @@ class Snake:
 
     def check_collision_tail(self):
         head = self.body[-1]
-        is_tail_eaten = False
-
-        for i in range(len(self.body)-1):
-            if head[0] == self.body[i][0] and head[1] == self.body[i][1]:
-                is_tail_eaten = True
-        return is_tail_eaten
+        return any(head == segment for segment in self.body[:-1])
 
     def check_collision_boundary(self):
         head = self.body[-1]
