@@ -1,11 +1,13 @@
 from enum import Enum
 import pygame
+import numpy as np
 
 class Direction(Enum):
     UP = 1
     DOWN = 2
     LEFT = 3
     RIGHT = 4
+
 class Snake:
     length = None
     direction = None
@@ -16,35 +18,44 @@ class Snake:
     score = 0
     start_time = None
 
-    #This is the constructor of the class.
     def __init__(self, block_size, boundary):
         self.block_size = block_size
         self.boundary = boundary
         self.respawn()
 
     def respawn(self):
-        self.length = 2
+        self.length = 4
         self.direction = Direction.RIGHT
-        self.body = [(20, 20), (20, 40), (20, 60)]
+        self.body = [(20, 20), (40, 20), (60, 20), (80, 20)]
+        self.score = 0
 
     def update_score(self):
         self.score += 1
 
-    #This method is used to draw the snake on the screen.
-    def steer(self, direction):
-        if self.direction == Direction.DOWN and direction != Direction.UP:
-            self.direction = direction
-        elif self.direction == Direction.UP and direction != Direction.DOWN:
-            self.direction = direction
-        elif self.direction == Direction.LEFT and direction != Direction.RIGHT:
-            self.direction = direction
-        elif self.direction == Direction.RIGHT and direction != Direction.LEFT:
-            self.direction = direction
+    def steer(self, action):
+        if isinstance(action, list):  # Verifica si la acción viene de la IA
+            if np.array_equal(action, [1, 0, 0, 0]) and self.direction != Direction.LEFT:
+                self.direction = Direction.RIGHT
+            elif np.array_equal(action, [0, 1, 0, 0]) and self.direction != Direction.UP:
+                self.direction = Direction.DOWN
+            elif np.array_equal(action, [0, 0, 1, 0]) and self.direction != Direction.RIGHT:
+                self.direction = Direction.LEFT
+            elif np.array_equal(action, [0, 0, 0, 1]) and self.direction != Direction.DOWN:
+                self.direction = Direction.UP
+        else:  # Acción de control humano
+            if action == Direction.RIGHT and self.direction != Direction.LEFT:
+                self.direction = Direction.RIGHT
+            elif action == Direction.DOWN and self.direction != Direction.UP:
+                self.direction = Direction.DOWN
+            elif action == Direction.LEFT and self.direction != Direction.RIGHT:
+                self.direction = Direction.LEFT
+            elif action == Direction.UP and self.direction != Direction.DOWN:
+                self.direction = Direction.UP
 
-    #This method is used to move the snake.
     def move(self):
-        global next_head
         curr_head = self.body[-1]
+        next_head = curr_head  # Inicialización de next_head para evitar errores
+
         if self.direction == Direction.DOWN:
             next_head = (curr_head[0], curr_head[1] + self.block_size)
         elif self.direction == Direction.UP:
@@ -58,25 +69,21 @@ class Snake:
         if len(self.body) > self.length:
             self.body.pop(0)
 
-    #This method is used to draw the snake on the screen.
     def draw(self, game, win):
         for segment in self.body:
-            pygame.draw.rect(win,self.color,(segment[0], segment[1], self.block_size, self.block_size))
+            pygame.draw.rect(win, self.color, (segment[0], segment[1], self.block_size, self.block_size))
 
-    #This method is used to check if the snake has collided with the food.
     def check_collision_food(self, food):
         head = self.body[-1]
-        #print(f"Checking collision: Head at {head}, Food at ({food.x}, {food.y})")
         if head[0] == food.x and head[1] == food.y:
             self.eat()
-            food.respawn()
-            print("Food eaten")
             return True
         return False
 
     def eat(self):
         self.length += 1
         self.update_score()
+
 
     def check_collision_tail(self):
         head = self.body[-1]
@@ -87,5 +94,3 @@ class Snake:
         if head[0] >= self.boundary[0] or head[0] < 0 or head[1] >= self.boundary[1] or head[1] < 0:
             return True
         return False
-
-

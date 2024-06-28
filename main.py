@@ -1,62 +1,53 @@
 import pygame
+from snake import Snake, Direction
 from food import Food
-from snake import *
 
-class MainHuman:
-    def __init__(self):
-        pygame.init()
+# Ajusta los valores de la ventana del juego
+WINDOW_WIDTH = 640
+WINDOW_HEIGHT = 480
+BLOCK_SIZE = 20
 
-        self.boundary = (800, 600)
-        self.win = pygame.display.set_mode(self.boundary)
-        pygame.display.set_caption("Snake Game")
 
-        self.block_size = 20
-        self.snake = Snake(self.block_size, self.boundary)
-        self.food = Food(self.block_size, self.boundary)
-        self.font = pygame.font.SysFont('Times New Roman', 60, True)
-        self.font_small = pygame.font.SysFont('Times New Roman', 20, True)
+def game_loop():
+    pygame.init()
+    display = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
+    clock = pygame.time.Clock()
 
-    def run_game(self):
-        run = True
-        while run:
-            pygame.time.delay(100)
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    run = False
+    snake = Snake(BLOCK_SIZE, (WINDOW_WIDTH, WINDOW_HEIGHT))
+    food = Food(BLOCK_SIZE, (WINDOW_WIDTH, WINDOW_HEIGHT))
 
-            keys = pygame.key.get_pressed()
-            if keys[pygame.K_LEFT]:
-                self.snake.steer(Direction.LEFT)
-            elif keys[pygame.K_RIGHT]:
-                self.snake.steer(Direction.RIGHT)
-            elif keys[pygame.K_UP]:
-                self.snake.steer(Direction.UP)
-            elif keys[pygame.K_DOWN]:
-                self.snake.steer(Direction.DOWN)
+    running = True
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_LEFT:
+                    snake.steer(Direction.LEFT)
+                elif event.key == pygame.K_RIGHT:
+                    snake.steer(Direction.RIGHT)
+                elif event.key == pygame.K_UP:
+                    snake.steer(Direction.UP)
+                elif event.key == pygame.K_DOWN:
+                    snake.steer(Direction.DOWN)
 
-            self.snake.move()
-            self.snake.check_collision_food(self.food)
+        snake.move()
 
-            if self.snake.check_collision_boundary() or self.snake.check_collision_tail():
-                text = self.font.render('Game Over', True, (255, 255, 255))
-                text_rect = text.get_rect(center=(self.boundary[0] / 2, self.boundary[1] / 2))
-                self.win.blit(text, text_rect)
-                pygame.display.flip()
-                pygame.time.delay(2000)
-                self.snake.respawn()
-                self.food.respawn()
+        if snake.check_collision_food(food):
+            print("Food eaten")
+            food.respawn()
 
-            self.win.fill((0, 0, 0))
-            self.snake.draw(pygame, self.win)
-            self.food.draw(pygame, self.win)
+        if snake.check_collision_tail() or snake.check_collision_boundary():
+            running = False
 
-            score_text = self.font_small.render(f'Score: {self.snake.score}', True, (255, 255, 255))
-            self.win.blit(score_text, (10, 10))
-            pygame.display.flip()
+        display.fill((0, 0, 0))
+        snake.draw(display, display)
+        food.draw(pygame, display)
+        pygame.display.flip()
+        clock.tick(10)
 
-        pygame.quit()
+    pygame.quit()
+
 
 if __name__ == "__main__":
-    game = MainHuman()
-    game.run_game()
-
+    game_loop()

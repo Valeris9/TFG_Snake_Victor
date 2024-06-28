@@ -1,57 +1,143 @@
 import torch
 import random
+import numpy as np
 from collections import deque
-from model import QNet
-import torch.optim as optim
+from snake_ai import SnakeGameAI, Direction, Point
+from model import Linear_QNet, QTrainer
+from printer import plot
+import time
+
+MAX_MEMORY = 100_000
+BATCH_SIZE = 1000
+LR = 0.001
+GAMMA = 0.9
+EPSILON_DECAY = 0.995
+MIN_EPSILON = 0.01
+NUM_EPISODES = 200
+TIME_LIMIT = 3600
 
 class Agent:
-    def __init__(self, state_size, action_size, hidden_size=64, learning_rate=0.01):
-        self.state_size = state_size
-        self.action_size = action_size
-        self.memory = deque(maxlen=20000)
-        self.gamma = 0.99  # factor de descuento
-        self.epsilon = 1.0  # tasa de exploración inicial
-        self.epsilon_decay = 0.995  # decaimiento de la exploración
-        self.epsilon_min = 0.01  # mínima tasa de exploración
-        self.model = QNet(9, hidden_size, action_size)
-        self.optimizer = optim.Adam(self.model.parameters(), lr=learning_rate)
-        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        self.model.to(device)
 
-    def save_model(self, file_path):
-        torch.save(self.model.state_dict(), file_path)
+    def __init__(self):
+        self.n_games = 0
+        self.epsilon = 1.0  # Inicializar con alta exploración
+        self.gamma = GAMMA
+        self.memory = deque(maxlen=MAX_MEMORY)
+        self.model = Linear_QNet(11, 256, 4)
+        self.model.load()  # Cargar el modelo guardado
+        self.trainer = QTrainer(self.model, lr=LR, gamma=self.gamma)
 
-    def load_model(self, file_path):
-        self.model.load_state_dict(torch.load(file_path))
-        self.model.eval()
+    def get_state(self, game):
+        head = game.snake.body[-1]
+        point_l = Point(head[0] - game.snake.block_size, head[1])
+        point_r = Point(head[0] + game.snake.block_size, head[1])
+        point_u = Point(head[0], head[1] - game.snake.block_size)
+        point_d = Point(head[0], head[1] + game.snake.block_size)
+
+        dir_l = game.snake.direction == Direction.LEFT
+        dir_r = game.snake.direction == Direction.RIGHT
+        dir_u = game.snake.direction == Direction.UP
+        dir_d = game.snake.direction == Direction.DOWN
+
+        state = [
+            (dir_r and game.is_collision(point_r)) or
+            (dir_l and game.is_collision(point_l)) or
+            (dir_u and game.is_collision(point_u)) or
+            (dir_d and game.is_collision(point_d)),
+
+            (dir_u and game.is_collision(point_r)) or
+            (dir_d and game.is_collision(point_l)) or
+            (dir_l and game.is_collision(point_u)) or
+            (dir_r and game.is_collision(point_d)),
+
+            (dir_d and game.is_collision(point_r)) or
+            (dir_u and game.is_collision(point_l)) or
+            (dir_r and game.is_collision(point_u)) or
+            (dir_l and game.is_collision(point_d)),
+
+            dir_l,
+            dir_r,
+            dir_u,
+            dir_d,
+
+            game.food.x < head[0],
+            game.food.x > head[0],
+            game.food.y < head[1],
+            game.food.y > head[1]
+        ]
+
+        return np.array(state, dtype=int)
 
     def remember(self, state, action, reward, next_state, done):
-        self.memory.append((state, action, reward, next_state, done))
+        self.memory.append((state, action, reward, next_state, done))  # popleft if MAX_MEMORY is reached
 
-    def act(self, state):
-        if random.random() <= self.epsilon:
-            return random.randrange(self.action_size)
-        state = torch.FloatTensor(state).unsqueeze(0)
-        action_values = self.model(state)
-        return torch.argmax(action_values).item()
+    def train_long_memory(self):
+        if len(self.memory) > BATCH_SIZE:
+            mini_sample = random.sample(self.memory, BATCH_SIZE)  # list of tuples
+        else:
+            mini_sample = self.memory
 
-    def replay(self, batch_size):
-        if len(self.memory) < batch_size:
-            return
-        minibatch = random.sample(self.memory, batch_size)
-        for state, action, reward, next_state, done in minibatch:
-            target = reward
-            if not done:
-                next_state = torch.FloatTensor(next_state).unsqueeze(0)
-                target = reward + self.gamma * torch.max(self.model(next_state)).item()
-            state = torch.FloatTensor(state).unsqueeze(0)
-            q_values = self.model(state)
-            target_q_values = q_values.clone()
-            target_q_values[0][action] = target
-            loss = torch.nn.functional.mse_loss(q_values, target_q_values)
-            self.optimizer.zero_grad()
-            loss.backward()
-            self.optimizer.step()
+        states, actions, rewards, next_states, dones = zip(*mini_sample)
+        self.trainer.train_step(states, actions, rewards, next_states, dones)
 
-        if self.epsilon > self.epsilon_min:
-            self.epsilon *= self.epsilon_decay
+    def train_short_memory(self, state, action, reward, next_state, done):
+        self.trainer.train_step(state, action, reward, next_state, done)
+
+    def get_action(self, state):
+        self.epsilon = max(MIN_EPSILON, self.epsilon * EPSILON_DECAY)
+        final_move = [0, 0, 0, 0]
+        if random.uniform(0, 1) < self.epsilon:
+            move = random.randint(0, 3)
+            final_move[move] = 1
+        else:
+            state0 = torch.tensor(state, dtype=torch.float).unsqueeze(0)
+            prediction = self.model(state0)
+            move = torch.argmax(prediction).item()
+            final_move[move] = 1
+        #print(f"Action taken: {final_move}")
+        return final_move
+
+def train():
+    plot_scores = []
+    plot_mean_scores = []
+    total_score = 0
+    record = 0
+    agent = Agent()
+    game = SnakeGameAI()
+    start_time = time.time()
+
+    with open("results.txt", "w") as f:
+        try:
+            while agent.n_games < NUM_EPISODES and (time.time() - start_time) < TIME_LIMIT:
+                state_old = agent.get_state(game)
+                final_move = agent.get_action(state_old)
+                reward, done, score = game.play_step(final_move)
+                state_new = agent.get_state(game)
+                agent.train_short_memory(state_old, final_move, reward, state_new, done)
+                agent.remember(state_old, final_move, reward, state_new, done)
+
+                if done:
+                    game.reset()
+                    agent.n_games += 1
+                    agent.train_long_memory()
+
+                    if score > record or agent.n_games % 50:
+                        record = score
+                        print('Model saved')
+                        agent.model.save()
+
+                    print('Game', agent.n_games, 'Score', score, 'Record:', record)
+                    f.write(f'{score}\n')
+                    plot_scores.append(score)
+                    total_score += score
+                    mean_score = total_score / agent.n_games
+                    plot_mean_scores.append(mean_score)
+                    plot(plot_scores, plot_mean_scores)
+
+        except KeyboardInterrupt:
+            print('Training interrupted. Saving model...')
+            agent.model.save()
+            print('Model saved. Exiting...')
+
+if __name__ == '__main__':
+    train()
