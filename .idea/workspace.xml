@@ -4,7 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="5c1028ee-a5fc-425f-95b2-7d9f56b374a6" name="Changes" comment="Informes de progrés" />
+    <list default="true" id="5c1028ee-a5fc-425f-95b2-7d9f56b374a6" name="Changes" comment="Dossier v2">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Informe final.pdf" beforeDir="false" afterPath="$PROJECT_DIR$/Informe final.pdf" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -280,7 +283,23 @@
       <option name="project" value="LOCAL" />
       <updated>1719658899407</updated>
     </task>
-    <option name="localTasksCounter" value="13" />
+    <task id="LOCAL-00013" summary="Dossier">
+      <option name="closed" value="true" />
+      <created>1719664326895</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1719664326895</updated>
+    </task>
+    <task id="LOCAL-00014" summary="Dossier v2">
+      <option name="closed" value="true" />
+      <created>1719762145403</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1719762145403</updated>
+    </task>
+    <option name="localTasksCounter" value="15" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -307,6 +326,8 @@
     <MESSAGE value="Casi final" />
     <MESSAGE value="src folder" />
     <MESSAGE value="Informes de progrés" />
-    <option name="LAST_COMMIT_MESSAGE" value="Informes de progrés" />
+    <MESSAGE value="Dossier" />
+    <MESSAGE value="Dossier v2" />
+    <option name="LAST_COMMIT_MESSAGE" value="Dossier v2" />
   </component>
 </project>
