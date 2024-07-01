@@ -3,7 +3,7 @@
 Benvolguts al repositori del Treball de Fi de Grau. Aquí hi ha inclosos tots els documents, informes i imatges que he anat creant i realitzant durant tot el treball.
 A continuació, comentaré les carpetes que hi ha en aquest directori per així poder aclarir-ho correctament.
 
-
+Enllaç al repositori de GitHub: https://github.com/Valeris9/TFG_Snake_Victor
 # Files
 
  - grafics_resultats: Són tots els gràfics que hi ha a la part de resultats de l'informe però  més grans. Estan extrets de l'arxiu Resultats.xlsx.
