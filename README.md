@@ -8,9 +8,8 @@ Enllaç al repositori de GitHub: https://github.com/Valeris9/TFG_Snake_Victor
 
  - grafics_resultats: Són tots els gràfics que hi ha a la part de resultats de l'informe però  més grans. Estan extrets de l'arxiu Resultats.xlsx.
  - img_informes: Són les imatges que hi ha a l'informe final. Hi ha versions normals i versions amb els colors invertits per millorar la visibilitat.
- - informes: Són tots els informes: El informe previ, el informe de progrés 1 i el informe de progrés 2.
+ - informes: Són tots els informes: El informe previ, el informe de progrés 1, el informe de progés 2, la proposta d'informe final (que és el mateix que el informe de progrés 2) i el informe final
  - src: Són tots els arxius referents a la implementació del Joc Snake amb control humà i amb IA. 
- - Informe final.pdf: És l'informe final corresponent.
  - Resultats.xlsx: Són els resultats de les 10.000 execucions de l'agent per entrenar-lo.
 
 # /src
